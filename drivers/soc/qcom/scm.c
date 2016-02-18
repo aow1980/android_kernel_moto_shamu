@@ -35,7 +35,7 @@
 static DEFINE_MUTEX(scm_lock);
 
 #define SCM_EBUSY_WAIT_MS 30
-#define SCM_EBUSY_MAX_RETRY 20
+#define SCM_EBUSY_MAX_RETRY 67
 
 /**
  * struct scm_command - one SCM command buffer
@@ -321,6 +321,8 @@ static int _scm_call_retry(u32 svc_id, u32 cmd_id, const void *cmd_buf,
 					resp_buf, resp_len, cmd, len);
 		if (ret == SCM_EBUSY)
 			msleep(SCM_EBUSY_WAIT_MS);
+		if (retry_count == 33)
+			pr_warn("scm: secure world has been busy for 1 second!\n");
 	} while (ret == SCM_EBUSY && (retry_count++ < SCM_EBUSY_MAX_RETRY));
 
 	if (ret == SCM_EBUSY)
@@ -644,4 +646,3 @@ int scm_get_feat_version(u32 feat)
 	return 0;
 }
 EXPORT_SYMBOL(scm_get_feat_version);
-
