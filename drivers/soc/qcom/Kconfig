@@ -127,6 +127,9 @@ config AUTOSMP
 	  Automatically hotplugs the multiple cpu cores on and off
 	  based on cpu load and suspend state
 
+config STATE_NOTIFIER
+        bool "State Notifier"
+
 source "drivers/soc/qcom/memshare/Kconfig"
 
 endif # ARCH_MSM
