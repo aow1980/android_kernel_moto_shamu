@@ -1,8 +1,7 @@
 /*
  * State Notifier Driver
  *
- * Copyright (c) 2013-2016, Pranav Vashi <neobuddy89@gmail.com>
- *           (c) 2017, Joe Maples <joe@frap129.org>
+ * Copyright (c) 2013-2017, Pranav Vashi <neobuddy89@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -14,7 +13,7 @@
 #include <linux/module.h>
 #include <linux/state_notifier.h>
 
-#define DEFAULT_SUSPEND_DEFER_TIME 	1
+#define DEFAULT_SUSPEND_DEFER_TIME 	10
 #define STATE_NOTIFIER			"state_notifier"
 
 /*
@@ -97,7 +96,7 @@ void state_suspend(void)
 
 	suspend_in_progress = true;
 
-	queue_delayed_work(susp_wq, &suspend_work,
+	queue_delayed_work(susp_wq, &suspend_work, 
 		msecs_to_jiffies(suspend_defer_time * 1000));
 }
 
@@ -113,7 +112,10 @@ void state_resume(void)
 
 static int __init state_notifier_init(void)
 {
-	susp_wq = create_singlethread_workqueue("state_susp_wq");
+	susp_wq =
+	    alloc_workqueue("state_susp_wq",
+			    WQ_HIGHPRI | WQ_UNBOUND | WQ_MEM_RECLAIM, 0);
+
 	if (!susp_wq)
 		pr_err("State Notifier failed to allocate suspend workqueue\n");
 
