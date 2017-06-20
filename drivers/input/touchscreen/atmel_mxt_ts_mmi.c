@@ -233,7 +233,7 @@ struct t9_range {
 #define MXT_CRC_TIMEOUT		2000	/* msec */
 #define MXT_FW_RESET_TIME	3500	/* msec */
 #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-#define MXT_WAKEUP_TIME		50	/* msec */
+#define MXT_WAKEUP_TIME		25	/* msec */
 #define MXT_REGULATOR_DELAY	150	/* msec */
 #define MXT_POWERON_DELAY	150	/* msec */
 
@@ -2520,10 +2520,16 @@ static void mxt_set_sensor_state(struct mxt_data *data, int state)
 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_WG);
 		if (!data->in_bootloader)
 			mxt_sensor_state_config(data, ACTIVE_IDX);
-			break;
+#ifdef CONFIG_STATE_NOTIFIER
+		state_suspend();
+#endif
+		break;
 #endif
 
 	case STATE_ACTIVE:
+#ifdef CONFIG_STATE_NOTIFIER
+		state_resume();
+#endif
 		if (!data->in_bootloader)
 			mxt_sensor_state_config(data, ACTIVE_IDX);
 		data->enable_reporting = true;
@@ -2532,10 +2538,7 @@ static void mxt_set_sensor_state(struct mxt_data *data, int state)
 			mxt_restore_default_mode(data);
 			pr_debug("Non-persistent mode; restoring default\n");
 		}
-#ifdef CONFIG_STATE_NOTIFIER
-		state_resume();
-#endif
-			break;
+		break;
 
 	case STATE_STANDBY:
 		mxt_irq_enable(data, false);
