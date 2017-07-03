@@ -376,10 +376,9 @@ KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
+		   -fno-delete-null-pointer-checks \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks \
-		   -Wno-array-bounds \
 		   -std=gnu89
 
 KBUILD_AFLAGS_KERNEL :=
@@ -577,6 +576,10 @@ endif # $(dot-config)
 # This allow a user to issue only 'make' to build a kernel including modules
 # Defaults to vmlinux, but the arch makefile usually adds further targets
 all: vmlinux
+
+# Optimization flags
+KBUILD_CFLAGS	+= -g0 -DNDEBUG \
+                   -mtune=cortex-a15 -mcpu=cortex-a15 -mfpu=neon-vfpv4
 
 KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
 
